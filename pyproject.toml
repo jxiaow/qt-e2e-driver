@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qt-e2e-driver"
+version = "0.1.0"
+description = "Pytest-side E2E driver and Qt-side adapter contract for Qt desktop applications."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "qt-e2e-driver maintainers" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
