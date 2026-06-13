@@ -2,6 +2,8 @@
 
 The driver uses newline-delimited JSON over a localhost TCP connection.
 
+The Python client reads one response line per request and rejects responses that are empty, not valid JSON, not a JSON object, missing required `data`, or larger than its configured `max_response_bytes` limit. The default limit is 1 MiB.
+
 ## Request
 
 ```json
@@ -39,7 +41,9 @@ Python owns contract validation before a UI action is sent:
 | Stage | Error |
 | --- | --- |
 | Cannot connect to the endpoint | `E2E_CONNECTION_ERROR` |
+| Endpoint returns empty, malformed, non-object, missing-data, or oversized response | `E2E_INFRA_ERROR` |
 | `list-aliases` returns `ok=false` | `E2E_INFRA_ERROR` |
+| Catalog payload is missing `aliases`, has non-object entries, omits `objectName`, has invalid boolean fields, or has invalid `hitTargets` | `InvalidAliasCatalog` |
 | Catalog is empty | `EMPTY_ALIAS_CATALOG` |
 | Test accesses an alias absent from the catalog | `UNKNOWN_ALIAS_IN_CATALOG` |
 

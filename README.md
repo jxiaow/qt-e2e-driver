@@ -42,6 +42,7 @@ Python gets that registry by calling `list-aliases` at startup. Python does not 
 from qt_e2e_driver import QtE2EClient, UiAliases
 
 client = QtE2EClient("127.0.0.1", 19527)
+client.wait_until_ready()
 catalog = client.load_alias_catalog()
 ui = UiAliases(catalog)
 
@@ -49,7 +50,17 @@ client.set_text(ui.login.account, "alice")
 client.click(ui.login.submit)
 ```
 
-If `list-aliases` fails, the test session fails before any UI action runs. If an alias is missing from the catalog, accessing `ui.login.account` fails immediately.
+`wait_until_ready()` polls `health` until the local Qt test server is listening, which avoids fixed sleeps while the app starts. If `list-aliases` fails, the test session fails before any UI action runs. If an alias is missing from the catalog, accessing `ui.login.account` fails immediately.
+
+When writing tests interactively, `dir(ui)` and `dir(ui.login)` show the next available alias segments. Typo errors include close matches, for example `did you mean: login.password`.
+
+For long-running UI transitions, tests can wait for the Qt event loop through the protocol instead of sleeping:
+
+```python
+client.wait_idle(timeout_ms=500)
+```
+
+The Python client also rejects empty, malformed, non-object, missing-data, and oversized protocol responses with `E2E_INFRA_ERROR` so setup problems fail close to the real cause. The default response limit is 1 MiB and can be changed with `QtE2EClient(max_response_bytes=...)`. Invalid client timeout values fail locally with `ValueError`. Malformed alias catalogs raise `InvalidAliasCatalog` before any UI action is sent.
 
 ## Qt App Boundary
 

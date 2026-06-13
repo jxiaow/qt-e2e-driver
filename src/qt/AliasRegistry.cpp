@@ -4,6 +4,15 @@
 
 namespace qt_e2e_driver {
 
+namespace {
+
+bool canShareObjectName(const AliasEntry& left, const AliasEntry& right)
+{
+    return !left.hitTargets.isEmpty() && !right.hitTargets.isEmpty();
+}
+
+} // namespace
+
 bool AliasRegistry::add(const AliasEntry& entry, QString* error)
 {
     if (entry.alias.trimmed().isEmpty()) {
@@ -56,27 +65,33 @@ QStringList AliasRegistry::aliases() const
 QStringList AliasRegistry::validate() const
 {
     QStringList errors;
-    QHash<QString, QString> firstAliasByObjectName;
+    QHash<QString, AliasEntry> firstEntryByObjectName;
 
     for (const AliasEntry& item : entriesByAlias_) {
         if (item.alias.trimmed().isEmpty()) {
             errors.append(QStringLiteral("alias must not be empty"));
         }
 
-        if (item.objectName.trimmed().isEmpty()) {
+        const QString objectName = item.objectName.trimmed();
+        if (objectName.isEmpty()) {
             errors.append(QStringLiteral("%1 has empty objectName").arg(item.alias));
+            continue;
         }
 
         if (item.required && item.deprecated) {
             errors.append(QStringLiteral("%1 cannot be both required and deprecated").arg(item.alias));
         }
 
-        if (firstAliasByObjectName.contains(item.objectName)) {
+        if (firstEntryByObjectName.contains(objectName)) {
+            const AliasEntry first = firstEntryByObjectName.value(objectName);
+            if (canShareObjectName(first, item)) {
+                continue;
+            }
             errors.append(
                 QStringLiteral("%1 and %2 share objectName %3")
-                    .arg(firstAliasByObjectName.value(item.objectName), item.alias, item.objectName));
+                    .arg(first.alias, item.alias, objectName));
         } else {
-            firstAliasByObjectName.insert(item.objectName, item.alias);
+            firstEntryByObjectName.insert(objectName, item);
         }
     }
 

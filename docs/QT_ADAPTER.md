@@ -41,6 +41,8 @@ public:
 
 The resolver only returns a coordinate in widget-local space. It must not call product slots, emit product signals, or directly toggle business state.
 
+Alias registry validation allows multiple hit target aliases to share one `objectName` when those aliases declare `hitTargets`. Plain widget aliases should not share `objectName`; use a hit resolver only for regions inside a custom-painted widget.
+
 ## Product Boundary
 
 Application repositories should own:

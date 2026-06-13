@@ -5,6 +5,7 @@ from .errors import (
     E2EConnectionError,
     E2EInfraError,
     EmptyAliasCatalog,
+    InvalidAliasCatalog,
     QtE2EError,
     UnknownAliasInCatalog,
 )
@@ -16,6 +17,7 @@ __all__ = [
     "E2EConnectionError",
     "E2EInfraError",
     "EmptyAliasCatalog",
+    "InvalidAliasCatalog",
     "QtE2EClient",
     "QtE2EError",
     "UiAliases",

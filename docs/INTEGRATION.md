@@ -239,7 +239,9 @@ from qt_e2e_driver import QtE2EClient, UiAliases
 
 @pytest.fixture(scope="session")
 def e2e_client():
-    return QtE2EClient("127.0.0.1", 19527)
+    client = QtE2EClient("127.0.0.1", 19527)
+    client.wait_until_ready(timeout=10)
+    return client
 
 
 @pytest.fixture(scope="session")
@@ -252,6 +254,7 @@ def test_login_wrong_password(e2e_client, ui):
     e2e_client.set_text(ui.login.account, "bad_user")
     e2e_client.set_text(ui.login.password, "bad_password")
     e2e_client.click(ui.login.submit)
+    e2e_client.wait_idle(timeout_ms=500)
 
     assert e2e_client.get_text(ui.login.error)
 ```
