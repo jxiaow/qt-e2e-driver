@@ -76,6 +76,11 @@ The open-source driver stays independent. A product repository only registers al
 
 For step-by-step product integration, see [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
+For AI-assisted integration into an existing qmake, CMake, or Visual Studio Qt
+project, start with
+[docs/AI_INTEGRATION_PLAYBOOK.md](docs/AI_INTEGRATION_PLAYBOOK.md).
+Planned hardening work is tracked in `harness/project/operations/ai-integration-kit/`.
+
 ## License
 
 No license has been selected yet. Choose and add a license before publishing this repository publicly.
