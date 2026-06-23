@@ -352,6 +352,230 @@ class PaymentWebFlow:
 
 This keeps the stable Qt boundary in the alias catalog while allowing H5 interactions without turning third-party DOM details into project-wide aliases.
 
+### 3.10 Excel Case Converter
+
+Test cases are authored by people in Excel using natural language. The framework should not require test authors to write YAML, Python, or a strict DSL.
+
+Target flow:
+
+```text
+Excel natural-language case
+  -> importer reads xlsx/csv
+  -> AI/parser converts steps to structured IR
+  -> resolver maps native targets to aliases and H5 steps to local locators
+  -> low-confidence steps go to review
+  -> generator emits pytest code
+```
+
+The source Excel can contain columns such as case ID, title, preconditions, steps, and expected result. The converter must preserve source file, sheet, row, original step text, parsed action, and confidence. If an LLM is used for natural-language parsing, the IR must also record parser name/version, prompt version, and enough provenance for review.
+
+Low-confidence, ambiguous, or policy-sensitive steps must not be silently guessed. They should produce review items with reason codes such as `AMBIGUOUS_TARGET`, `UNKNOWN_ALIAS`, or `UNSUPPORTED_ACTION`.
+
+Supported action vocabulary should start small and explicit:
+
+- Native: `click`, `set_text`, `wait_text`, `wait_visible`, `wait_enabled`, `wait_idle`.
+- WebView: `web.click_text`, `web.click_role`, `web.click_testid`, `web.click_css`, `web.set_text_css`, `web.wait_text`, `web.wait_url`.
+- Assertions: `assert_text`, `assert_visible`, `assert_url_contains`.
+
+Converter responsibilities:
+
+- Read `.xlsx` and `.csv`.
+- Preserve case ID, sheet name, row number, and original step text.
+- Reject arbitrary Python injection.
+- Reject raw Qt `objectName` targets.
+- Emit structured IR before pytest code.
+- Emit review reports for ambiguous or low-confidence steps.
+- Keep the original natural-language text beside every parsed action.
+- Make generated output reproducible enough for review by recording parser and prompt versions.
+- Respect project privacy boundaries before sending Excel case text to an external model.
+
+Non-goals:
+
+- Do not require test authors to write a DSL.
+- Do not claim fully automatic conversion for every natural-language sentence.
+- Do not execute low-confidence parsed steps without review.
+- Do not send sensitive case data to external AI services unless the product team explicitly allows it.
+
+### 3.11 Dual-Format E2E Reports
+
+Generated reports must serve two readers:
+
+```text
+Humans: inspect, filter, understand screenshots and failures
+AI/tools: parse structured data and continue repair
+```
+
+Markdown alone is not enough. The primary outputs should be `report.json` and `report.html`.
+
+There are two report phases:
+
+- Conversion report: shows generated cases, review-needed cases, ambiguous targets, unknown aliases, unsupported actions, and low-confidence parsing.
+- Execution report: maps pass/fail results back to source case, Excel sheet, row, and step; attaches screenshots, protocol traces, and structured errors.
+
+Suggested artifact layout:
+
+```text
+artifacts/<run-id>/
+  report.json
+  report.html
+  cases/
+    payment_001.json
+  errors/
+    payment_001_step_2.json
+  screenshots/
+    payment_001_step_2.png
+  traces/
+    payment_001.protocol.jsonl
+  generated/
+    test_payment_001.py
+  source/
+    cases.xlsx
+```
+
+HTML report requirements:
+
+- Summary counts: total, generated, needs review, passed, failed.
+- Filters by sheet, case ID, status, and error code.
+- Expandable case details.
+- Original natural-language step text.
+- Parsed action and confidence.
+- Failed step highlighted.
+- Screenshot displayed inline.
+- Links to protocol traces and generated pytest code.
+- Suggested fixes shown in human-readable form.
+
+JSON report requirements:
+
+- Stable schema version.
+- Source file/sheet/row mapping.
+- Case ID and step index mapping.
+- Parsed IR.
+- Execution status.
+- Error code/message/phase.
+- Artifact relative paths.
+- Suggested fixes structured enough for an AI to act on.
+
+Pytest mapping mechanism:
+
+- Generated tests should embed `caseId`, source file, sheet, row, and step index metadata.
+- Step helpers should write trace entries before and after each action.
+- Exceptions should be captured with the active step context.
+- Protocol errors, assertion failures, and conversion errors should map back to the same case/step model.
+
+Privacy and retention policy:
+
+- Screenshots and traces may contain account, phone, order, payment, or personal data.
+- Reporting must support masking or redaction before artifacts are shared outside the test environment.
+- Artifact retention should be configurable.
+- `report.html` should be considered sensitive unless generated with redaction enabled.
+- Protocol traces should avoid storing raw secret values where possible.
+
+Screenshot policy:
+
+- Native failure: capture the main window; optionally highlight the widget if geometry is known.
+- H5 failure: capture the main window and the webview region when possible.
+- If a candidate element exists but is hidden, include locator context and optional highlight geometry.
+- If no element is found, still capture URL, title, screenshot, and trace.
+
+Failure code families:
+
+- Conversion: `CASE_PARSE_ERROR`, `AMBIGUOUS_TARGET`, `UNKNOWN_ALIAS`, `UNSUPPORTED_ACTION`.
+- Execution native: `E2E_CONNECTION_ERROR`, `NOT_FOUND`, `NOT_READY`, `NO_HANDLER`, `ASSERTION_FAILED`.
+- Execution web: `WEB_NOT_FOUND`, `WEB_MULTIPLE_MATCHES`, `WEB_NOT_VISIBLE`, `WEB_TIMEOUT`, `WEB_JS_ERROR`.
+
+Principle:
+
+```text
+A failure report must answer:
+- Which case failed?
+- Which Excel row and step failed?
+- What was the original natural-language step?
+- What did it parse into?
+- What exact error occurred?
+- What did the UI look like?
+- What should a human or AI try next?
+```
+### 3.12 Automation Scripts And Project Skills
+
+Some repeated work should be automated as scripts, while AI-specific operating procedures should live as project skills.
+
+Use this separation:
+
+```text
+scripts = executable tools for repeatable machine work
+skills = AI operating procedures for when and how to use the tools
+rules = constraints and boundaries
+operations = future work and progress tracking
+docs = implemented public behavior only
+```
+
+Recommended scripts:
+
+Every script should document input files, output files, exit codes, whether it may modify source files, and JSON schema version for machine-readable outputs.
+
+| Script | Purpose |
+| --- | --- |
+| `scripts/scan_qt_ui.py` | Scan `.ui` files, `setObjectName(...)`, likely entry points, `QWebEngineView`, and existing alias data; output structured JSON. |
+| `scripts/suggest_aliases.py` | Convert scan results into draft alias suggestions with confidence and reasons. |
+| `scripts/validate_cases.py` | Validate Excel-converted IR for missing targets, unknown aliases, low confidence, and unsupported actions. |
+| `scripts/collect_artifacts.py` | Collect screenshots, traces, generated tests, source cases, and report files into a stable run directory. |
+| `scripts/qt_compile_smoke.ps1` | Configure Qt/MSVC build environment and run adapter compile smoke with clear diagnostics. |
+
+Recommended project skills:
+
+| Skill | Purpose |
+| --- | --- |
+| `harness/project/skills/scan-ui-and-aliases.md` | Teach AI how to scan a product UI, read scan output, create alias suggestions, and avoid silently confirming aliases. |
+| `harness/project/skills/convert-excel-cases.md` | Teach AI how to convert Excel natural-language cases into IR, review low-confidence steps, and generate pytest. |
+| `harness/project/skills/debug-e2e-failure.md` | Teach AI how to read `report.json`, screenshots, traces, and structured errors to decide the next repair. |
+| `harness/project/skills/webview-locator-recording.md` | Teach AI and humans how to record H5 locators and choose among `testid`, `role`, `text`, and `css`. |
+
+Scripts should be usable without an AI. Skills should not duplicate script implementation details; they should describe workflow, inputs, outputs, review gates, and common mistakes.
+
+Example workflow:
+
+```text
+AI reads scan-ui-and-aliases skill
+  -> runs scan_qt_ui.py
+  -> reviews scan-report.json
+  -> runs suggest_aliases.py
+  -> produces alias-suggestions.json/html
+  -> asks for review only on low-confidence or business-semantic decisions
+```
+
+
+Recorder-to-case relationship:
+
+- WebView recorder outputs locator candidates with confidence and evidence.
+- Case conversion may reference recorder candidates when a natural-language H5 step is low confidence.
+- A human or AI review step chooses the locator before executable pytest is generated.
+- Recorder output should not directly rewrite Excel or product code without explicit confirmation.
+
+Non-goals:
+
+- Do not make scripts silently edit product source files.
+- Do not put project-specific business flows in shared scripts.
+- Do not treat skills as verified product documentation.
+
+### 3.13 Optional Dependencies
+
+The base Python package should remain lightweight. Features that need extra dependencies should use optional extras.
+
+Planned dependency policy:
+
+- `.csv` import should use the Python standard library.
+- `.xlsx` import should use an optional dependency such as `openpyxl` under an extra like `case`.
+- HTML reporting should prefer stdlib rendering first; richer renderers must be optional.
+- Missing optional dependencies should fail with actionable messages, not break the core client.
+
+Example future install shapes:
+
+```text
+pip install -e .[test]
+pip install -e .[case]
+pip install -e .[report]
+```
+
 ## 4. Implementation Order
 
 Follow the execution board. The current intended order is:
@@ -365,6 +589,11 @@ Follow the execution board. The current intended order is:
 7. Compile smoke script.
 8. Failure diagnostics and pytest fixtures.
 9. WebView locator driver.
+10. Excel case converter.
+11. Dual-format E2E reports.
+12. Automation scripts for repeatable UI/case/report work.
+13. Project skills for repeated AI E2E workflows.
+14. Optional dependency policy for Excel/report features.
 
 If implementation uncovers a dependency conflict, update `initiative-board.md` and `initiative-decisions.md` before proceeding.
 

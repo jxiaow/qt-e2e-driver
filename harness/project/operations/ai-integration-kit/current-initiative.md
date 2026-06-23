@@ -41,12 +41,26 @@ This initiative tracks the AI-assisted integration kit and its hardening path.
 - Non-goal: full browser automation or stable contracts for third-party H5 internals.
 - Completion criteria: WebView locator driver design and tests distinguish native aliases from H5 locators.
 
+
+### Stage 5: Human Case Conversion And Reporting
+
+- Goal: convert human-authored Excel natural-language cases into structured IR and executable pytest, then report results for both humans and AI.
+- Non-goal: require test authors to write a strict DSL or silently execute low-confidence parsed steps.
+- Completion criteria: conversion and execution reports include source row mapping, parser provenance, screenshots, structured errors, privacy controls, and suggested fixes.
+
+### Stage 6: Repeatable Automation And AI Skills
+
+- Goal: add scripts for repeated machine work and project skills for repeated AI workflows.
+- Non-goal: make scripts silently edit product source or encode business-specific flows in shared tooling.
+- Completion criteria: scripts produce structured outputs, skills explain workflow and review gates, and harness checks pass.
 ## 3. Execution Order
 
 1. Complete AIKIT-01 through AIKIT-04 foundation packages.
 2. Prioritize AIKIT-05 JSON catalog loader/generator.
 3. Continue with AIKIT-06 DefaultWidgetDriver and doctor improvements.
 4. Add AIKIT-13 when native adapter and diagnostics are stable enough to support webview locator failures.
+5. Add AIKIT-14 and AIKIT-15A/15B/15C after locator, alias suggestion, and diagnostics foundations exist.
+6. Add AIKIT-16 and AIKIT-17 after conversion/reporting shapes are stable enough to automate repeated work.
 
 Current next item: determined by the highest-priority `todo / in_progress` package at the top of the [Execution Board](./initiative-board.md).
 

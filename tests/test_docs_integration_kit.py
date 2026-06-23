@@ -74,6 +74,13 @@ def test_unimplemented_hardening_work_lives_in_harness_operations() -> None:
         "Product Qt app",
         "Product E2E tests",
         "H5 owner",
+        "Excel Case Converter",
+        "parser name/version",
+        "Pytest mapping mechanism",
+        "Privacy and retention policy",
+        "Recorder-to-case relationship",
+        "Optional Dependencies",
+        "openpyxl",
     ):
         assert expected in design
 
@@ -118,3 +125,70 @@ def test_playbook_only_documents_current_alias_registry_behavior() -> None:
     assert "buildE2EAliasRegistry" in text
     assert "loadE2EAliasRegistryFromJson" not in text
     assert "tests/e2e/aliases.json" not in text
+
+
+def test_operations_decisions_cover_case_reports_privacy_and_dependencies() -> None:
+    decisions = (
+        ROOT
+        / "harness"
+        / "project"
+        / "operations"
+        / "ai-integration-kit"
+        / "initiative-decisions.md"
+    ).read_text(encoding="utf-8")
+    matrix = (
+        ROOT
+        / "harness"
+        / "project"
+        / "operations"
+        / "ai-integration-kit"
+        / "initiative-matrix.md"
+    ).read_text(encoding="utf-8")
+
+    for expected in (
+        "DEC-008 Case Conversion Provenance And Privacy",
+        "DEC-009 Reports And Artifacts Are Sensitive",
+        "DEC-010 Optional Dependencies Stay Out Of The Base Package",
+        "parser version",
+        "redaction hooks",
+        "openpyxl",
+    ):
+        assert expected in decisions
+
+    for expected in (
+        "AIKIT-15A",
+        "Conversion report",
+        "AIKIT-15B",
+        "Execution report core JSON",
+        "AIKIT-15C",
+        "HTML report and screenshots",
+        "JSON schema versions",
+        "privacy boundaries",
+    ):
+        assert expected in matrix
+
+def test_execution_board_covers_case_reporting_scripts_and_skills() -> None:
+    board = (
+        ROOT
+        / "harness"
+        / "project"
+        / "operations"
+        / "ai-integration-kit"
+        / "initiative-board.md"
+    ).read_text(encoding="utf-8")
+
+    for expected in (
+        "AIKIT-14",
+        "Add Excel case converter",
+        "AIKIT-15A",
+        "Add conversion report",
+        "AIKIT-15B",
+        "Add execution report core JSON",
+        "AIKIT-15C",
+        "Add HTML report and screenshots",
+        "AIKIT-16",
+        "Add UI scan and helper scripts",
+        "AIKIT-17",
+        "Add project skills for repeated E2E workflows",
+    ):
+        assert expected in board

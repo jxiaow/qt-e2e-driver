@@ -23,8 +23,14 @@
 | AIKIT-04 | Compile smoke fixture | `test` | `python -m pytest tests/test_qt_compile_smoke_fixture.py -q` | pass with compile test skipped by default | Local MSVC/qmake environment did not complete real compile |
 | AIKIT-05 | JSON catalog loader/generator | `test` | not run | not implemented | All behavior uncovered |
 | AIKIT-13 | WebView locator driver | `test` | not run | not implemented | H5 locator behavior, QWebEngine integration, and third-party H5 risks uncovered |
+| AIKIT-14 | Excel case converter | `test` | not run | not implemented | xlsx/csv import, NL parsing, IR, review flow, pytest generation uncovered |
+| AIKIT-15A | Conversion report | `test` | not run | not implemented | Conversion report schema, confidence review flow, parser provenance, and source row mapping uncovered |
+| AIKIT-15B | Execution report core JSON | `test` | not run | not implemented | Case/step failure mapping, trace paths, artifact paths, and structured errors uncovered |
+| AIKIT-15C | HTML report and screenshots | `test` | not run | not implemented | HTML filters, screenshot capture, redaction hooks, retention config, and suggested fixes uncovered |
+| AIKIT-16 | UI scan and helper scripts | `test` | not run | not implemented | Script inputs/outputs, exit codes, JSON schema versions, no-source-edit guarantees, and artifact collection uncovered |
+| AIKIT-17 | Project E2E workflow skills | `lint` | not run | not implemented | Skill content, script references, privacy boundaries, and review gate coverage uncovered |
 
 ## Current Verification Conclusion
 
 - Strongest verification so far: `python -m pytest` with 42 passing tests and one expected compile-smoke skip.
-- Biggest gap: no real product integration, no implemented JSON alias catalog loader, and no WebView locator driver yet.
+- Biggest gap: no real product integration, no implemented JSON alias catalog loader, no WebView locator driver, no Excel case conversion/reporting pipeline, and no repeatable scripts/skills layer yet.

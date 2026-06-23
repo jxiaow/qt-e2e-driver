@@ -28,6 +28,12 @@ This file is the single source of truth for the AI integration kit backlog and s
 11. AIKIT-11
 12. AIKIT-12
 13. AIKIT-13
+14. AIKIT-14
+15. AIKIT-15A
+16. AIKIT-15B
+17. AIKIT-15C
+18. AIKIT-16
+19. AIKIT-17
 
 ## Work Packages
 
@@ -46,6 +52,12 @@ This file is the single source of truth for the AI integration kit backlog and s
 | AIKIT-11 | P3 | todo | Add compile smoke script | PowerShell script for qmake compiler diagnostics | medium | Script tests pass | AIKIT-04 | Write tests |
 | AIKIT-12 | P3 | todo | Add diagnostics and pytest fixtures | richer protocol failure data and reusable pytest fixtures | medium | Contract/plugin tests pass | AIKIT-06, AIKIT-08 | Split if too large |
 | AIKIT-13 | P3 | todo | Add WebView locator driver | Alias only the Qt webview container; use local H5 locators for text/role/testid/css actions | high | Web locator tests pass and docs mark third-party H5 risk | AIKIT-06, AIKIT-08 | Write protocol/API design tests |
+| AIKIT-14 | P2 | todo | Add Excel case converter | Read human-authored Excel natural-language cases, produce structured IR, review report, and generated pytest | high | Converter tests cover xlsx/csv import, optional dependency errors, AI parser provenance, ambiguous-step review, and pytest generation | AIKIT-05, AIKIT-09, AIKIT-13 | Write IR and conversion-report tests |
+| AIKIT-15A | P2 | todo | Add conversion report | Emit JSON/HTML report for Excel-to-IR-to-pytest conversion, including review-needed steps and confidence | high | Conversion report tests verify schema, source row mapping, and review items | AIKIT-14 | Write conversion report tests |
+| AIKIT-15B | P2 | todo | Add execution report core JSON | Emit structured execution report with case/step mapping, error context, traces, and artifact paths | high | Execution JSON tests verify failures map to caseId/sheet/row/step | AIKIT-12, AIKIT-14 | Write execution report schema tests |
+| AIKIT-15C | P2 | todo | Add HTML report and screenshots | Render human HTML report with filters, inline screenshots, trace links, redaction hooks, and suggested fixes | high | HTML/screenshot tests verify links, redaction markers, and failure summaries | AIKIT-15B | Write renderer tests |
+| AIKIT-16 | P2 | todo | Add UI scan and helper scripts | Add scripts for Qt UI scanning, alias suggestions, case IR validation, artifact collection, and compile smoke diagnostics | medium | Script tests verify inputs/outputs, exit codes, JSON schema versions, and no source files are silently modified | AIKIT-05, AIKIT-09, AIKIT-15B | Write script behavior tests |
+| AIKIT-17 | P2 | todo | Add project skills for repeated E2E workflows | Add project skills for scan/alias, Excel case conversion, failure debugging, and WebView locator recording | low | Harness checks pass and skills reference scripts, reports, privacy boundaries, review gates, and common mistakes | AIKIT-16 | Write skills content tests |
 
 ## Current Work Package Details
 
